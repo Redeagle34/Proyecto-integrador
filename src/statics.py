@@ -1,0 +1,1 @@
+# Aqui poner las funciones de estadisticas

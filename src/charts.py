@@ -1,4 +1,6 @@
 # Aqui se pondran las funciones de graficacion
+from src.statics import average_sleep_by_age
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -33,3 +35,14 @@ def steps_sleep_chart(results):
     plt.title("Relation between Daily Steps & Quality of Sleep")
     plt.ylim(0,10)
     plt.show()
+
+def sleep_quality_vs_age(data):
+    plt.figure(figsize=(8,5))
+    sns.barplot(x="Age group", y="Avg Quality of Sleep", data=average_sleep_by_age(data), palette="viridis")
+
+    plt.title("Promedio de Calidad de Sueño por Grupo de Edad")
+    plt.xlabel("Grupo de Edad")
+    plt.ylabel("Promedio de Calidad de Sueño")
+    plt.ylim(0, 10)  # asumiendo escala de 1 a 10
+    plt.show()
+    

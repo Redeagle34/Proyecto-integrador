@@ -1,2 +1,3 @@
-## Aqui se llamara a menu
-print('Hola Mundo!')
+from src.menu import menu
+
+menu()

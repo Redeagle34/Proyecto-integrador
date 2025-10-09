@@ -10,3 +10,17 @@ def steps_sleep(data):
     results = data.groupby("Daily Steps ranges")["Quality of Sleep"].mean().reset_index()
 
     print(results)
+
+def average_sleep_by_age(data):
+    # promedio por grupo de edad 
+    bins = [20,29,39,49,100]
+    labels = ["20-29", "30-39", "40-49", "50+"]  
+
+    # agrupar datos
+    data["Age group"] = pd.cut(data['Age'], bins=bins, labels=labels, right=True)
+
+    # promedios
+    promedios = data.groupby("Age group")["Quality of Sleep"].mean()
+
+    tabla = promedios.reset_index().rename(columns={"Quality of Sleep": "Avg Quality of Sleep"})
+    return tabla

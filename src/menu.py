@@ -1,6 +1,7 @@
 # Aqui se llamaran a todas las funciones del proyecto
 from src.charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart,sleep_quality_vs_age
 from src.reports import sleep_vs_age_report
+from src.aws import getCSVfromAWS
 
 # imports
 import pandas as pd
@@ -10,7 +11,7 @@ import seaborn as sns
 # cargar el dataset
 def menu():
     ## aqui cambiar para llamar a la funcion que hizo JP que carga el csv
-    data = pd.read_csv("resources/data/Sleep_health_and_lifestyle_dataset.csv")
+    data = getCSVfromAWS()
 
     user = input('elige una opcion (heatmap|scatter|age|report): ')
     match user:

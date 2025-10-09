@@ -16,7 +16,7 @@ def select_file():
         if file_path: 
             print("Selected file:", file_path)
             data = pd.read_csv(file_path, header = 0)
-            
+
 root = tk.Tk()
 root.title("File Upload Example")
 

@@ -1,5 +1,5 @@
 # Aqui se pondran las funciones de graficacion
-from src.statics import average_sleep_by_age
+from statics import average_sleep_by_age
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -26,8 +26,12 @@ def scatter_IMC_vs_sueño(data):
     return plt.show()
     
 
-def steps_sleep_chart(results):
-    import matplotlib.pyplot as plt
+def steps_sleep_chart(data):
+    df = pd.DataFrame(data)
+    bins = [2000,4000,6000,8000,10000]
+    labels = ["2000-4000", "4000-6000", "6000-8000", "8000-10000"]
+    df["Daily Steps ranges"] = pd.cut(df["Daily Steps"], bins=bins, labels=labels)
+    results = df.groupby("Daily Steps ranges")["Quality of Sleep"].mean().reset_index()
     plt.bar(results["Daily Steps ranges"], results["Quality of Sleep"])
 
     plt.xlabel("Daily Steps")
@@ -45,4 +49,14 @@ def sleep_quality_vs_age(data):
     plt.ylabel("Promedio de Calidad de Sueño")
     plt.ylim(0, 10)  # asumiendo escala de 1 a 10
     plt.show()
-    
+
+def bar_avg_by_group(data, x_col: str, y_col: str):
+    data = pd.DataFrame(data)
+    avg = data.groupby(x_col)[y_col].mean().reset_index()
+    plt.figure(figsize=(10, 6))
+    plt.bar(avg[x_col], avg[y_col], color=['pink', 'blue'])
+    plt.xlabel(x_col)
+    plt.ylabel(f'Average {y_col}')
+    plt.title(f'Average {y_col} for each {x_col}')
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+    plt.show()

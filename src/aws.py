@@ -1,11 +1,19 @@
 import boto3
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
 
 def getCSVfromAWS():
-    # --- CREDENCIALES AWS (directamente en el código, solo temporalmente) ---
-    aws_access_key_id = '.'
-    aws_secret_access_key = '.'
-    region = '.'
+    # --- CREDENCIALES AWS desde variables de entorno ---
+    aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+    region = os.getenv('AWS_REGION', 'us-west-1')
+
+    if not aws_access_key_id or not aws_secret_access_key:
+        raise ValueError("Las credenciales AWS no están configuradas. Por favor, configura las variables de entorno.")
 
     # Crear cliente S3
     s3 = boto3.client(

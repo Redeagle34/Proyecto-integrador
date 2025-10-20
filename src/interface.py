@@ -120,7 +120,7 @@ class GraphSelectorApp(tk.Tk):
 
         rb7 = ttk.Radiobutton(graph_frame, 
                             text="Pasos Diarios\nvs Calidad del Sueño",
-                            variable=self.report_choice, 
+                            variable=self.graph_choice, 
                             value="steps_sleepquality")
         rb7.pack(anchor=tk.W, pady=8)
 

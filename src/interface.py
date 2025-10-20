@@ -5,6 +5,7 @@ import sys
 from io import StringIO
 from charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group
 from reports import sleep_vs_age_report, sleep_vs_physical_activity_report
+from aws import getCSVfromAWS
 
 class GraphSelectorApp(tk.Tk):
     def __init__(self):
@@ -33,9 +34,17 @@ class GraphSelectorApp(tk.Tk):
                                     foreground="red")
         self.file_label.pack(side=tk.LEFT, padx=5)
         
-        btn_load = ttk.Button(load_frame, text="Cargar CSV/Excel", 
+        # Contenedor para botones de carga
+        btn_container = ttk.Frame(load_frame)
+        btn_container.pack(side=tk.RIGHT, padx=5)
+        
+        btn_load_aws = ttk.Button(btn_container, text="🌐 Cargar desde AWS", 
+                                 command=self.load_data_from_aws)
+        btn_load_aws.pack(side=tk.LEFT, padx=5)
+        
+        btn_load = ttk.Button(btn_container, text="📁 Cargar CSV/Excel Local", 
                              command=self.load_data)
-        btn_load.pack(side=tk.RIGHT, padx=5)
+        btn_load.pack(side=tk.LEFT, padx=5)
         
         # Notebook (pestañas) para Gráficas y Reportes
         self.notebook = ttk.Notebook(main_frame)
@@ -197,6 +206,43 @@ class GraphSelectorApp(tk.Tk):
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{str(e)}")
                 self.status.set("Error al cargar datos")
+    
+    def load_data_from_aws(self):
+        """Cargar datos desde AWS S3"""
+        try:
+            # Mostrar mensaje de carga
+            self.status.set("Conectando a AWS S3...")
+            self.update_idletasks()  # Actualizar la interfaz
+            
+            # Cargar datos desde AWS
+            self.data = getCSVfromAWS()
+            
+            # Actualizar la interfaz
+            self.file_label.config(text=f"✓ Datos cargados desde AWS S3", 
+                                  foreground="green")
+            self.btn_show_graph.config(state=tk.NORMAL)
+            self.btn_generate_report.config(state=tk.NORMAL)
+            self.status.set(f"Datos cargados desde AWS: {len(self.data)} registros")
+            messagebox.showinfo("Éxito", 
+                              f"Datos cargados correctamente desde AWS S3\n"
+                              f"Registros: {len(self.data)}\n"
+                              f"Columnas: {len(self.data.columns)}")
+            
+        except ValueError as ve:
+            # Error de credenciales
+            messagebox.showerror("Error de Configuración", 
+                               f"No se pudieron cargar las credenciales AWS:\n\n{str(ve)}\n\n"
+                               f"Asegúrate de tener un archivo .env con:\n"
+                               f"AWS_ACCESS_KEY_ID=tu_clave\n"
+                               f"AWS_SECRET_ACCESS_KEY=tu_secreto\n"
+                               f"AWS_REGION=us-west-1")
+            self.status.set("Error: Credenciales AWS no configuradas")
+            
+        except Exception as e:
+            # Otros errores
+            messagebox.showerror("Error", 
+                               f"No se pudieron cargar los datos desde AWS:\n\n{str(e)}")
+            self.status.set("Error al cargar datos desde AWS")
     
     def show_graph(self):
         if self.data is None:

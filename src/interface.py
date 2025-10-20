@@ -3,8 +3,8 @@ from tkinter import ttk, messagebox, simpledialog, scrolledtext
 import pandas as pd
 import sys
 from io import StringIO
-from src.charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group
-from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report, gender_vs_stress_level
+from src.charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group, scatter_IMC_vs_calidad_sueño
+from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report, gender_vs_stress_level, BMI_vs_sleep_duration, BMI_vs_sleep_quality
 from src.aws import getCSVfromAWS
 
 class GraphSelectorApp(tk.Tk):
@@ -112,6 +112,12 @@ class GraphSelectorApp(tk.Tk):
                              value="stress_by_gender")
         rb5.pack(anchor=tk.W, pady=8)
         
+        rb6 = ttk.Radiobutton(graph_frame, 
+                             text="Scatter Plot - IMC vs Calidad del Sueño",
+                             variable=self.graph_choice, 
+                             value="scatter_imc_calidad")
+        rb6.pack(anchor=tk.W, pady=8)
+        
         # Botón para mostrar gráfica
         btn_frame = ttk.Frame(graph_tab)
         btn_frame.pack(pady=20)
@@ -154,6 +160,18 @@ class GraphSelectorApp(tk.Tk):
                              variable=self.report_choice, 
                              value="gender_stress")
         rb3.pack(anchor=tk.W, pady=8)
+
+        rb4 = ttk.Radiobutton(select_frame, 
+                             text="IMC\nvs Duración de Sueño",
+                             variable=self.report_choice, 
+                             value="IMC_sleepduration")
+        rb4.pack(anchor=tk.W, pady=8)
+        
+        rb5 = ttk.Radiobutton(select_frame, 
+                             text="IMC\nvs Calidad de Sueño",
+                             variable=self.report_choice, 
+                             value="IMC_sleepquality")
+        rb5.pack(anchor=tk.W, pady=8)
         
         # Botón para generar reporte
         btn_frame = ttk.Frame(select_frame)
@@ -277,6 +295,10 @@ class GraphSelectorApp(tk.Tk):
             elif choice == "stress_by_gender":
                 self.status.set("Mostrando: Estrés por Género")
                 bar_avg_by_group(self.data,"Gender","Stress Level")
+            
+            elif choice == "scatter_imc_calidad":
+                self.status.set("Mostrando: Scatter Plot IMC vs Calidad del Sueño (Santiago)")
+                scatter_IMC_vs_calidad_sueño(self.data)
 
         except Exception as e:
             messagebox.showerror("Error", f"Error al mostrar la gráfica:\n{str(e)}")
@@ -309,6 +331,14 @@ class GraphSelectorApp(tk.Tk):
             elif choice == "gender_stress":
                 self.status.set("Generando: Reporte Nivel de Estrés vs Género")
                 gender_vs_stress_level(self.data)
+            
+            elif choice == "IMC_sleepduration":
+                self.status.set("Generando: Reporte IMC vs Duración de Sueño")
+                BMI_vs_sleep_duration(self.data)
+            
+            elif choice == "IMC_sleepquality":
+                self.status.set("Generando: Reporte IMC vs Calidad de Sueño")
+                BMI_vs_sleep_quality(self.data)
             
             # Obtener la salida capturada
             output = sys.stdout.getvalue()

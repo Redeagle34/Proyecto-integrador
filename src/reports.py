@@ -116,4 +116,113 @@ def gender_vs_stress_level(data):
     print(f"\nEl género con mayor nivel de estrés es {mayor_estres}, "
           f"mientras que el género con menor nivel de estrés es {menor_estres}.")
 
+def BMI_vs_sleep_duration(data):
+    """
+    Reporte sobre la relación entre IMC y duración del sueño.
     
+    Parameters:
+        data (DataFrame): Dataset con columnas 'BMI Category' y 'Sleep Duration'
+    """
+    # Agrupar datos por categoría de IMC y calcular estadísticas de duración de sueño
+    promedios = data.groupby("BMI Category")["Sleep Duration"].mean()
+    desviaciones = data.groupby("BMI Category")["Sleep Duration"].std()
+    
+    # Calcular conteos
+    conteos = data["BMI Category"].value_counts().sort_index()
+    
+    # Crear el reporte
+    print("=" * 70)
+    print("REPORTE: DURACIÓN DEL SUEÑO POR CATEGORÍA DE IMC")
+    print("=" * 70)
+    print()
+    
+    print(f"Total de registros analizados: {len(data)}")
+    print(f"Categorías de IMC: {', '.join(sorted(data['BMI Category'].unique()))}")
+    print()
+    
+    print("ESTADÍSTICAS POR CATEGORÍA DE IMC:")
+    print("-" * 70)
+    for categoria in sorted(promedios.index):
+        promedio = promedios[categoria]
+        std = desviaciones[categoria]
+        cantidad = conteos[categoria]
+        print(f"  • {categoria:20s}: {promedio:.2f} horas (±{std:.2f}) - {cantidad} personas")
+    
+    print()
+    
+    # Observaciones automáticas
+    mayor_duracion = promedios.idxmax()
+    menor_duracion = promedios.idxmin()
+    diferencia = promedios[mayor_duracion] - promedios[menor_duracion]
+    
+    print("HALLAZGOS:")
+    print("-" * 70)
+    print(f"Categoría con MAYOR duración de sueño: {mayor_duracion}")
+    print(f"Promedio: {promedios[mayor_duracion]:.2f} horas")
+    print()
+    print(f"Categoría con MENOR duración de sueño: {menor_duracion}")
+    print(f"Promedio: {promedios[menor_duracion]:.2f} horas")
+    print()
+    print(f"Diferencia entre categorías: {diferencia:.2f} horas")
+    print()
+    print("CONCLUSIÓN:")
+    print(f"   Las personas con IMC '{mayor_duracion}' duermen en promedio")
+    print(f"   {diferencia:.2f} horas más que las personas con IMC '{menor_duracion}'.")
+    print()
+    print("=" * 70)
+
+
+def BMI_vs_sleep_quality(data):
+    """
+    Reporte sobre la relación entre IMC y calidad del sueño.
+    
+    Parameters:
+        data (DataFrame): Dataset con columnas 'BMI Category' y 'Quality of Sleep'
+    """
+    # Agrupar datos por categoría de IMC y calcular estadísticas de calidad de sueño
+    promedios = data.groupby("BMI Category")["Quality of Sleep"].mean()
+    desviaciones = data.groupby("BMI Category")["Quality of Sleep"].std()
+    
+    # Calcular conteos
+    conteos = data["BMI Category"].value_counts().sort_index()
+    
+    # Crear el reporte
+    print("=" * 70)
+    print("REPORTE: CALIDAD DEL SUEÑO POR CATEGORÍA DE IMC")
+    print("=" * 70)
+    print()
+    
+    print(f"Total de registros analizados: {len(data)}")
+    print(f"Categorías de IMC: {', '.join(sorted(data['BMI Category'].unique()))}")
+    print()
+    
+    print("ESTADÍSTICAS POR CATEGORÍA DE IMC:")
+    print("-" * 70)
+    for categoria in sorted(promedios.index):
+        promedio = promedios[categoria]
+        std = desviaciones[categoria]
+        cantidad = conteos[categoria]
+        print(f"  • {categoria:20s}: {promedio:.2f}/10 (±{std:.2f}) - {cantidad} personas")
+    
+    print()
+    
+    # Observaciones automáticas
+    mayor_calidad = promedios.idxmax()
+    menor_calidad = promedios.idxmin()
+    diferencia = promedios[mayor_calidad] - promedios[menor_calidad]
+    
+    print("HALLAZGOS:")
+    print("-" * 70)
+    print(f"Categoría con MAYOR calidad de sueño: {mayor_calidad}")
+    print(f"Calidad promedio: {promedios[mayor_calidad]:.2f}/10")
+    print()
+    print(f"Categoría con MENOR calidad de sueño: {menor_calidad}")
+    print(f"Calidad promedio: {promedios[menor_calidad]:.2f}/10")
+    print()
+    print(f"Diferencia entre categorías: {diferencia:.2f} puntos")
+    print()
+    print("CONCLUSIÓN:")
+    print(f"Las personas con IMC '{mayor_calidad}' reportan una calidad de sueño")
+    print(f"{diferencia:.2f} puntos superior a las personas con IMC '{menor_calidad}'.")
+    print()
+    print("=" * 70)

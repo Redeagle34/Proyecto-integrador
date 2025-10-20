@@ -60,3 +60,16 @@ def bar_avg_by_group(data, x_col: str, y_col: str):
     plt.title(f'Average {y_col} for each {x_col}')
     plt.grid(axis='y', linestyle='--', alpha=0.5)
     plt.show()
+
+def scatter_IMC_vs_calidad_sueño(data):
+    df = pd.DataFrame(data)
+    df_para_relacion = df[['BMI Category', 'Quality of Sleep']]
+    df_relacion_IMC_calidad = df_para_relacion.groupby('BMI Category')['Quality of Sleep'].mean().reset_index()
+    
+    df_relacion_IMC_sueño = df.groupby('BMI Category')['Quality of Sleep'].mean().reset_index()
+
+    plt.scatter(df_relacion_IMC_sueño['BMI Category'], df_relacion_IMC_sueño['Quality of Sleep'])
+    plt.plot(df_relacion_IMC_sueño['BMI Category'], df_relacion_IMC_sueño['Quality of Sleep'])
+    plt.xlabel('BMI Category')
+    plt.title('Average Sleep Quality Duration by BMI Category')
+    return plt.show()

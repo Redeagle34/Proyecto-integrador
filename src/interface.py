@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 from io import StringIO
 from src.charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group
-from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report
+from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report, gender_vs_stress_level
 from src.aws import getCSVfromAWS
 
 class GraphSelectorApp(tk.Tk):
@@ -148,6 +148,12 @@ class GraphSelectorApp(tk.Tk):
                              variable=self.report_choice, 
                              value="sleep_physical")
         rb2.pack(anchor=tk.W, pady=8)
+        
+        rb3 = ttk.Radiobutton(select_frame, 
+                             text="Nivel de Estrés\nvs Género",
+                             variable=self.report_choice, 
+                             value="gender_stress")
+        rb3.pack(anchor=tk.W, pady=8)
         
         # Botón para generar reporte
         btn_frame = ttk.Frame(select_frame)
@@ -299,6 +305,10 @@ class GraphSelectorApp(tk.Tk):
             elif choice == "sleep_physical":
                 self.status.set("Generando: Reporte Calidad de Sueño vs Actividad Física")
                 sleep_vs_physical_activity_report(self.data)
+            
+            elif choice == "gender_stress":
+                self.status.set("Generando: Reporte Nivel de Estrés vs Género")
+                gender_vs_stress_level(self.data)
             
             # Obtener la salida capturada
             output = sys.stdout.getvalue()

@@ -90,4 +90,30 @@ def sleep_vs_physical_activity_report(data):
     print(f"\nEl grupo con mejor calidad de sueño es {mejor}, "
           f"mientras que el grupo con peor calidad de sueño es {peor}.")
 
+def gender_vs_stress_level(data):
+    """
+    Generate a report on the relationship between gender and stress level.
+    
+    Parameters:
+        data (DataFrame): The dataset containing 'Gender' and 'Stress Level' columns.
+    """
+    # Group data by gender and calculate average stress level
+    promedios = data.groupby("Gender")["Stress Level"].mean()
+    
+    # Calculate counts
+    conteos = data["Gender"].value_counts().sort_index()
+    
+    # Create the report
+    print("=== Reporte: Nivel de estrés por género ===\n")
+    for genero, promedio in promedios.items():
+        cantidad = conteos[genero]
+        print(f"- Género {genero}: promedio = {promedio:.2f} (n={cantidad})")
+    
+    # Automatic observations
+    mayor_estres = promedios.idxmax()
+    menor_estres = promedios.idxmin()
+    
+    print(f"\nEl género con mayor nivel de estrés es {mayor_estres}, "
+          f"mientras que el género con menor nivel de estrés es {menor_estres}.")
+
     

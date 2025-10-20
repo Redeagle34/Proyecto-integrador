@@ -12,7 +12,7 @@ class GraphSelectorApp(tk.Tk):
         super().__init__()
         self.title("Análisis de Sueño - Gráficas y Reportes")
         self.geometry("800x600")
-        self.minsize(700, 500)
+        self.minsize(1080, 720)
         self.data = None
         self.create_widgets()
         
@@ -304,6 +304,10 @@ class GraphSelectorApp(tk.Tk):
             elif choice == "scatter_imc_calidad":
                 self.status.set("Mostrando: Scatter Plot IMC vs Calidad del Sueño (Santiago)")
                 scatter_IMC_vs_calidad_sueño(self.data)
+            
+            elif choice == 'steps':
+                self.status.set("Mostrando: Pasos Diarios vs Calidad del Sueño")
+                steps_sleep_chart(self.data)
 
         except Exception as e:
             messagebox.showerror("Error", f"Error al mostrar la gráfica:\n{str(e)}")

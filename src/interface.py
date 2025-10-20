@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 from io import StringIO
 from src.charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group, scatter_IMC_vs_calidad_sueño
-from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report, gender_vs_stress_level, BMI_vs_sleep_duration, BMI_vs_sleep_quality
+from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report, gender_vs_stress_level, BMI_vs_sleep_duration, BMI_vs_sleep_quality, steps_vs_sleep_quality
 from src.aws import getCSVfromAWS
 
 class GraphSelectorApp(tk.Tk):
@@ -117,6 +117,13 @@ class GraphSelectorApp(tk.Tk):
                              variable=self.graph_choice, 
                              value="scatter_imc_calidad")
         rb6.pack(anchor=tk.W, pady=8)
+
+        rb7 = ttk.Radiobutton(graph_frame, 
+                            text="Pasos Diarios\nvs Calidad del Sueño",
+                            variable=self.report_choice, 
+                            value="steps_sleepquality")
+        rb7.pack(anchor=tk.W, pady=8)
+
         
         # Botón para mostrar gráfica
         btn_frame = ttk.Frame(graph_tab)
@@ -339,6 +346,11 @@ class GraphSelectorApp(tk.Tk):
             elif choice == "IMC_sleepquality":
                 self.status.set("Generando: Reporte IMC vs Calidad de Sueño")
                 BMI_vs_sleep_quality(self.data)
+
+            elif choice == "steps_sleepquality":
+                self.status.set("Generando: Reporte Pasos Diarios vs Calidad de Sueño")
+                steps_vs_sleep_quality(self.data)
+
             
             # Obtener la salida capturada
             output = sys.stdout.getvalue()

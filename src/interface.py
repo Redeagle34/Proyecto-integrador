@@ -118,12 +118,6 @@ class GraphSelectorApp(tk.Tk):
                              value="scatter_imc_calidad")
         rb6.pack(anchor=tk.W, pady=8)
 
-        rb7 = ttk.Radiobutton(graph_frame, 
-                            text="Pasos Diarios\nvs Calidad del Sueño",
-                            variable=self.graph_choice, 
-                            value="steps_sleepquality")
-        rb7.pack(anchor=tk.W, pady=8)
-
         
         # Botón para mostrar gráfica
         btn_frame = ttk.Frame(graph_tab)
@@ -291,10 +285,6 @@ class GraphSelectorApp(tk.Tk):
             elif choice == "scatter":
                 self.status.set("Mostrando: Scatter Plot IMC vs Sueño")
                 scatter_IMC_vs_sueño(self.data)
-                
-            elif choice == "steps":
-                self.status.set("Mostrando: Pasos Diarios vs Calidad del Sueño")
-                steps_sleep_chart(self.data)
 
             elif choice == "sleep_quality_age":
                 self.status.set("Mostrando: Calidad del Sueño vs Edad")

@@ -1,14 +1,18 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog
+from tkinter import ttk, messagebox, simpledialog, scrolledtext
 import pandas as pd
-from charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart
+import sys
+from io import StringIO
+from src.charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group, scatter_IMC_vs_calidad_sueño
+from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report, gender_vs_stress_level, BMI_vs_sleep_duration, BMI_vs_sleep_quality, steps_vs_sleep_quality
+from src.aws import getCSVfromAWS
 
 class GraphSelectorApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Selector de Gráficas - Análisis de Sueño")
-        self.geometry("600x400")
-        self.minsize(500, 350)
+        self.title("Análisis de Sueño - Gráficas y Reportes")
+        self.geometry("800x600")
+        self.minsize(700, 500)
         self.data = None
         self.create_widgets()
         
@@ -18,7 +22,7 @@ class GraphSelectorApp(tk.Tk):
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         # Título
-        title = ttk.Label(main_frame, text="Visualización de Datos de Sueño", 
+        title = ttk.Label(main_frame, text="Análisis de Datos de Sueño", 
                          font=("Arial", 16, "bold"))
         title.pack(pady=(0, 20))
         
@@ -30,12 +34,48 @@ class GraphSelectorApp(tk.Tk):
                                     foreground="red")
         self.file_label.pack(side=tk.LEFT, padx=5)
         
-        btn_load = ttk.Button(load_frame, text="Cargar CSV/Excel", 
+        # Contenedor para botones de carga
+        btn_container = ttk.Frame(load_frame)
+        btn_container.pack(side=tk.RIGHT, padx=5)
+        
+        btn_load_aws = ttk.Button(btn_container, text="🌐 Cargar desde AWS", 
+                                 command=self.load_data_from_aws)
+        btn_load_aws.pack(side=tk.LEFT, padx=5)
+        
+        btn_load = ttk.Button(btn_container, text="📁 Cargar CSV/Excel Local", 
                              command=self.load_data)
-        btn_load.pack(side=tk.RIGHT, padx=5)
+        btn_load.pack(side=tk.LEFT, padx=5)
+        
+        # Notebook (pestañas) para Gráficas y Reportes
+        self.notebook = ttk.Notebook(main_frame)
+        self.notebook.pack(fill=tk.BOTH, expand=True, pady=(0, 20))
+        
+        # Pestaña de Gráficas
+        self.create_graphs_tab()
+        
+        # Pestaña de Reportes
+        self.create_reports_tab()
+        
+        # Botones inferiores
+        btn_frame = ttk.Frame(main_frame)
+        btn_frame.pack(pady=10)
+        
+        btn_exit = ttk.Button(btn_frame, text="Salir", command=self.quit)
+        btn_exit.pack(side=tk.LEFT, padx=5)
+        
+        # Barra de estado
+        self.status = tk.StringVar(value="Listo. Cargue los datos para comenzar.")
+        statusbar = ttk.Label(self, textvariable=self.status, 
+                             relief=tk.SUNKEN, anchor=tk.W, padding=(4,2))
+        statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+    
+    def create_graphs_tab(self):
+        """Crear pestaña de gráficas"""
+        graph_tab = ttk.Frame(self.notebook, padding=15)
+        self.notebook.add(graph_tab, text="Gráficas")
         
         # Frame para seleccionar gráfica
-        graph_frame = ttk.LabelFrame(main_frame, text="Seleccionar Gráfica", padding=15)
+        graph_frame = ttk.LabelFrame(graph_tab, text="Seleccionar Gráfica", padding=15)
         graph_frame.pack(fill=tk.BOTH, expand=True)
         
         # Variable para radio buttons
@@ -59,24 +99,117 @@ class GraphSelectorApp(tk.Tk):
                              variable=self.graph_choice, 
                              value="steps")
         rb3.pack(anchor=tk.W, pady=8)
+
+        rb4 = ttk.Radiobutton(graph_frame, 
+                             text="Gráfica de Barras - Calidad del Sueño vs Edad",
+                             variable=self.graph_choice, 
+                             value="sleep_quality_age")
+        rb4.pack(anchor=tk.W, pady=8)
+
+        rb5 = ttk.Radiobutton(graph_frame, 
+                             text="Gráfica de Barras - Estrés por Género",
+                             variable=self.graph_choice, 
+                             value="stress_by_gender")
+        rb5.pack(anchor=tk.W, pady=8)
+        
+        rb6 = ttk.Radiobutton(graph_frame, 
+                             text="Scatter Plot - IMC vs Calidad del Sueño",
+                             variable=self.graph_choice, 
+                             value="scatter_imc_calidad")
+        rb6.pack(anchor=tk.W, pady=8)
+
         
         # Botón para mostrar gráfica
-        btn_frame = ttk.Frame(main_frame)
+        btn_frame = ttk.Frame(graph_tab)
         btn_frame.pack(pady=20)
         
-        self.btn_show = ttk.Button(btn_frame, text="Mostrar Gráfica", 
+        self.btn_show_graph = ttk.Button(btn_frame, text="Mostrar Gráfica", 
                                    command=self.show_graph, 
                                    state=tk.DISABLED)
-        self.btn_show.pack(side=tk.LEFT, padx=5)
+        self.btn_show_graph.pack(side=tk.LEFT, padx=5)
+    
+    def create_reports_tab(self):
+        """Crear pestaña de reportes"""
+        report_tab = ttk.Frame(self.notebook, padding=15)
+        self.notebook.add(report_tab, text="📄 Reportes")
         
-        btn_exit = ttk.Button(btn_frame, text="Salir", command=self.quit)
-        btn_exit.pack(side=tk.LEFT, padx=5)
+        # Frame izquierdo - Selección de reporte
+        left_frame = ttk.Frame(report_tab)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=False, padx=(0, 10))
         
-        # Barra de estado
-        self.status = tk.StringVar(value="Listo. Cargue los datos para comenzar.")
-        statusbar = ttk.Label(self, textvariable=self.status, 
-                             relief=tk.SUNKEN, anchor=tk.W, padding=(4,2))
-        statusbar.pack(side=tk.BOTTOM, fill=tk.X)
+        select_frame = ttk.LabelFrame(left_frame, text="Seleccionar Reporte", padding=15)
+        select_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Variable para radio buttons de reportes
+        self.report_choice = tk.StringVar(value="sleep_age")
+        
+        # Radio buttons para cada reporte
+        rb1 = ttk.Radiobutton(select_frame, 
+                             text="Calidad de Sueño\nvs Edad",
+                             variable=self.report_choice, 
+                             value="sleep_age")
+        rb1.pack(anchor=tk.W, pady=8)
+        
+        rb2 = ttk.Radiobutton(select_frame, 
+                             text="Calidad de Sueño\nvs Actividad Física",
+                             variable=self.report_choice, 
+                             value="sleep_physical")
+        rb2.pack(anchor=tk.W, pady=8)
+        
+        rb3 = ttk.Radiobutton(select_frame, 
+                             text="Nivel de Estrés\nvs Género",
+                             variable=self.report_choice, 
+                             value="gender_stress")
+        rb3.pack(anchor=tk.W, pady=8)
+
+        rb4 = ttk.Radiobutton(select_frame, 
+                             text="IMC\nvs Duración de Sueño",
+                             variable=self.report_choice, 
+                             value="IMC_sleepduration")
+        rb4.pack(anchor=tk.W, pady=8)
+        
+        rb5 = ttk.Radiobutton(select_frame, 
+                             text="IMC\nvs Calidad de Sueño",
+                             variable=self.report_choice, 
+                             value="IMC_sleepquality")
+        rb5.pack(anchor=tk.W, pady=8)
+
+        rb6 = ttk.Radiobutton(select_frame, 
+                            text="Pasos Diarios\nvs Calidad del Sueño", 
+                            variable=self.report_choice, 
+                            value="steps_sleepquality")
+        rb6.pack(anchor=tk.W, pady=8)
+
+        
+
+        # Botón para generar reporte
+        btn_frame = ttk.Frame(select_frame)
+        btn_frame.pack(pady=20)
+        
+        self.btn_generate_report = ttk.Button(btn_frame, text="Generar Reporte", 
+                                   command=self.show_report, 
+                                   state=tk.DISABLED)
+        self.btn_generate_report.pack(padx=5)
+        
+        # Frame derecho - Área de visualización del reporte
+        right_frame = ttk.Frame(report_tab)
+        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        
+        output_frame = ttk.LabelFrame(right_frame, text="Resultado del Reporte", padding=10)
+        output_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Área de texto con scroll para mostrar el reporte
+        self.report_output = scrolledtext.ScrolledText(output_frame, 
+                                                       wrap=tk.WORD, 
+                                                       width=50, 
+                                                       height=20,
+                                                       font=("Courier", 10))
+        self.report_output.pack(fill=tk.BOTH, expand=True)
+        
+        # Botón para limpiar
+        btn_clear = ttk.Button(right_frame, text="Limpiar", 
+                              command=lambda: self.report_output.delete(1.0, tk.END))
+        btn_clear.pack(pady=5)
     
     def load_data(self):
         from tkinter import filedialog
@@ -98,13 +231,51 @@ class GraphSelectorApp(tk.Tk):
                 
                 self.file_label.config(text=f"✓ Datos cargados: {filename.split('/')[-1]}", 
                                       foreground="green")
-                self.btn_show.config(state=tk.NORMAL)
+                self.btn_show_graph.config(state=tk.NORMAL)
+                self.btn_generate_report.config(state=tk.NORMAL)
                 self.status.set(f"Datos cargados: {len(self.data)} registros")
                 messagebox.showinfo("Éxito", f"Datos cargados correctamente\nRegistros: {len(self.data)}")
                 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{str(e)}")
                 self.status.set("Error al cargar datos")
+    
+    def load_data_from_aws(self):
+        """Cargar datos desde AWS S3"""
+        try:
+            # Mostrar mensaje de carga
+            self.status.set("Conectando a AWS S3...")
+            self.update_idletasks()  # Actualizar la interfaz
+            
+            # Cargar datos desde AWS
+            self.data = getCSVfromAWS()
+            
+            # Actualizar la interfaz
+            self.file_label.config(text=f"✓ Datos cargados desde AWS S3", 
+                                  foreground="green")
+            self.btn_show_graph.config(state=tk.NORMAL)
+            self.btn_generate_report.config(state=tk.NORMAL)
+            self.status.set(f"Datos cargados desde AWS: {len(self.data)} registros")
+            messagebox.showinfo("Éxito", 
+                              f"Datos cargados correctamente desde AWS S3\n"
+                              f"Registros: {len(self.data)}\n"
+                              f"Columnas: {len(self.data.columns)}")
+            
+        except ValueError as ve:
+            # Error de credenciales
+            messagebox.showerror("Error de Configuración", 
+                               f"No se pudieron cargar las credenciales AWS:\n\n{str(ve)}\n\n"
+                               f"Asegúrate de tener un archivo .env con:\n"
+                               f"AWS_ACCESS_KEY_ID=tu_clave\n"
+                               f"AWS_SECRET_ACCESS_KEY=tu_secreto\n"
+                               f"AWS_REGION=us-west-1")
+            self.status.set("Error: Credenciales AWS no configuradas")
+            
+        except Exception as e:
+            # Otros errores
+            messagebox.showerror("Error", 
+                               f"No se pudieron cargar los datos desde AWS:\n\n{str(e)}")
+            self.status.set("Error al cargar datos desde AWS")
     
     def show_graph(self):
         if self.data is None:
@@ -121,17 +292,76 @@ class GraphSelectorApp(tk.Tk):
             elif choice == "scatter":
                 self.status.set("Mostrando: Scatter Plot IMC vs Sueño")
                 scatter_IMC_vs_sueño(self.data)
-                
-            elif choice == "steps":
-                # Para esta gráfica necesitamos procesar los datos primero
-                self.status.set("Mostrando: Pasos Diarios vs Calidad del Sueño")
-                # Aquí asumimos que tienes la función que procesa los datos
-                # Si necesitas procesar los datos de manera diferente, ajusta aquí
-                steps_sleep_chart(self.data)
-                
+
+            elif choice == "sleep_quality_age":
+                self.status.set("Mostrando: Calidad del Sueño vs Edad")
+                sleep_quality_vs_age(self.data)
+
+            elif choice == "stress_by_gender":
+                self.status.set("Mostrando: Estrés por Género")
+                bar_avg_by_group(self.data,"Gender","Stress Level")
+            
+            elif choice == "scatter_imc_calidad":
+                self.status.set("Mostrando: Scatter Plot IMC vs Calidad del Sueño (Santiago)")
+                scatter_IMC_vs_calidad_sueño(self.data)
+
         except Exception as e:
             messagebox.showerror("Error", f"Error al mostrar la gráfica:\n{str(e)}")
             self.status.set("Error al mostrar gráfica")
+    
+    def show_report(self):
+        """Mostrar el reporte seleccionado"""
+        if self.data is None:
+            messagebox.showwarning("Advertencia", "Primero debe cargar los datos")
+            return
+        
+        choice = self.report_choice.get()
+        
+        # Limpiar el área de texto
+        self.report_output.delete(1.0, tk.END)
+        
+        # Capturar la salida de print
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        
+        try:
+            if choice == "sleep_age":
+                self.status.set("Generando: Reporte Calidad de Sueño vs Edad")
+                sleep_vs_age_report(self.data)
+                
+            elif choice == "sleep_physical":
+                self.status.set("Generando: Reporte Calidad de Sueño vs Actividad Física")
+                sleep_vs_physical_activity_report(self.data)
+            
+            elif choice == "gender_stress":
+                self.status.set("Generando: Reporte Nivel de Estrés vs Género")
+                gender_vs_stress_level(self.data)
+            
+            elif choice == "IMC_sleepduration":
+                self.status.set("Generando: Reporte IMC vs Duración de Sueño")
+                BMI_vs_sleep_duration(self.data)
+            
+            elif choice == "IMC_sleepquality":
+                self.status.set("Generando: Reporte IMC vs Calidad de Sueño")
+                BMI_vs_sleep_quality(self.data)
+
+            elif choice == "steps_sleepquality":
+                self.status.set("Generando: Reporte Pasos Diarios vs Calidad de Sueño")
+                steps_vs_sleep_quality(self.data)
+
+            
+            # Obtener la salida capturada
+            output = sys.stdout.getvalue()
+            
+            # Mostrar en el área de texto
+            self.report_output.insert(tk.END, output)
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al generar el reporte:\n{str(e)}")
+            self.status.set("Error al generar reporte")
+        finally:
+            # Restaurar stdout
+            sys.stdout = old_stdout
 
 class MiApp(tk.Tk):
     def __init__(self):

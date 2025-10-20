@@ -90,4 +90,190 @@ def sleep_vs_physical_activity_report(data):
     print(f"\nEl grupo con mejor calidad de sueño es {mejor}, "
           f"mientras que el grupo con peor calidad de sueño es {peor}.")
 
+def gender_vs_stress_level(data):
+    """
+    Generate a report on the relationship between gender and stress level.
     
+    Parameters:
+        data (DataFrame): The dataset containing 'Gender' and 'Stress Level' columns.
+    """
+    # Group data by gender and calculate average stress level
+    promedios = data.groupby("Gender")["Stress Level"].mean()
+    
+    # Calculate counts
+    conteos = data["Gender"].value_counts().sort_index()
+    
+    # Create the report
+    print("=== Reporte: Nivel de estrés por género ===\n")
+    for genero, promedio in promedios.items():
+        cantidad = conteos[genero]
+        print(f"- Género {genero}: promedio = {promedio:.2f} (n={cantidad})")
+    
+    # Automatic observations
+    mayor_estres = promedios.idxmax()
+    menor_estres = promedios.idxmin()
+    
+    print(f"\nEl género con mayor nivel de estrés es {mayor_estres}, "
+          f"mientras que el género con menor nivel de estrés es {menor_estres}.")
+
+def BMI_vs_sleep_duration(data):
+    """
+    Reporte sobre la relación entre IMC y duración del sueño.
+    
+    Parameters:
+        data (DataFrame): Dataset con columnas 'BMI Category' y 'Sleep Duration'
+    """
+    # Agrupar datos por categoría de IMC y calcular estadísticas de duración de sueño
+    promedios = data.groupby("BMI Category")["Sleep Duration"].mean()
+    desviaciones = data.groupby("BMI Category")["Sleep Duration"].std()
+    
+    # Calcular conteos
+    conteos = data["BMI Category"].value_counts().sort_index()
+    
+    # Crear el reporte
+    print("=" * 70)
+    print("REPORTE: DURACIÓN DEL SUEÑO POR CATEGORÍA DE IMC")
+    print("=" * 70)
+    print()
+    
+    print(f"Total de registros analizados: {len(data)}")
+    print(f"Categorías de IMC: {', '.join(sorted(data['BMI Category'].unique()))}")
+    print()
+    
+    print("ESTADÍSTICAS POR CATEGORÍA DE IMC:")
+    print("-" * 70)
+    for categoria in sorted(promedios.index):
+        promedio = promedios[categoria]
+        std = desviaciones[categoria]
+        cantidad = conteos[categoria]
+        print(f"  • {categoria:20s}: {promedio:.2f} horas (±{std:.2f}) - {cantidad} personas")
+    
+    print()
+    
+    # Observaciones automáticas
+    mayor_duracion = promedios.idxmax()
+    menor_duracion = promedios.idxmin()
+    diferencia = promedios[mayor_duracion] - promedios[menor_duracion]
+    
+    print("HALLAZGOS:")
+    print("-" * 70)
+    print(f"Categoría con MAYOR duración de sueño: {mayor_duracion}")
+    print(f"Promedio: {promedios[mayor_duracion]:.2f} horas")
+    print()
+    print(f"Categoría con MENOR duración de sueño: {menor_duracion}")
+    print(f"Promedio: {promedios[menor_duracion]:.2f} horas")
+    print()
+    print(f"Diferencia entre categorías: {diferencia:.2f} horas")
+    print()
+    print("CONCLUSIÓN:")
+    print(f"   Las personas con IMC '{mayor_duracion}' duermen en promedio")
+    print(f"   {diferencia:.2f} horas más que las personas con IMC '{menor_duracion}'.")
+    print()
+    print("=" * 70)
+
+
+def BMI_vs_sleep_quality(data):
+    """
+    Reporte sobre la relación entre IMC y calidad del sueño.
+    
+    Parameters:
+        data (DataFrame): Dataset con columnas 'BMI Category' y 'Quality of Sleep'
+    """
+    # Agrupar datos por categoría de IMC y calcular estadísticas de calidad de sueño
+    promedios = data.groupby("BMI Category")["Quality of Sleep"].mean()
+    desviaciones = data.groupby("BMI Category")["Quality of Sleep"].std()
+    
+    # Calcular conteos
+    conteos = data["BMI Category"].value_counts().sort_index()
+    
+    # Crear el reporte
+    print("=" * 70)
+    print("REPORTE: CALIDAD DEL SUEÑO POR CATEGORÍA DE IMC")
+    print("=" * 70)
+    print()
+    
+    print(f"Total de registros analizados: {len(data)}")
+    print(f"Categorías de IMC: {', '.join(sorted(data['BMI Category'].unique()))}")
+    print()
+    
+    print("ESTADÍSTICAS POR CATEGORÍA DE IMC:")
+    print("-" * 70)
+    for categoria in sorted(promedios.index):
+        promedio = promedios[categoria]
+        std = desviaciones[categoria]
+        cantidad = conteos[categoria]
+        print(f"  • {categoria:20s}: {promedio:.2f}/10 (±{std:.2f}) - {cantidad} personas")
+    
+    print()
+    
+    # Observaciones automáticas
+    mayor_calidad = promedios.idxmax()
+    menor_calidad = promedios.idxmin()
+    diferencia = promedios[mayor_calidad] - promedios[menor_calidad]
+    
+    print("HALLAZGOS:")
+    print("-" * 70)
+    print(f"Categoría con MAYOR calidad de sueño: {mayor_calidad}")
+    print(f"Calidad promedio: {promedios[mayor_calidad]:.2f}/10")
+    print()
+    print(f"Categoría con MENOR calidad de sueño: {menor_calidad}")
+    print(f"Calidad promedio: {promedios[menor_calidad]:.2f}/10")
+    print()
+    print(f"Diferencia entre categorías: {diferencia:.2f} puntos")
+    print()
+    print("CONCLUSIÓN:")
+    print(f"Las personas con IMC '{mayor_calidad}' reportan una calidad de sueño")
+    print(f"{diferencia:.2f} puntos superior a las personas con IMC '{menor_calidad}'.")
+    print()
+    print("=" * 70)
+
+
+def steps_vs_sleep_quality(data):
+    """
+    Reporte sobre la relación entre la cantidad de pasos diarios y la calidad del sueño.
+    
+    Parameters:
+        data (DataFrame): Dataset con columnas 'Daily Steps' y 'Quality of Sleep'
+    """
+
+    # Crear grupos de pasos diarios
+    bins = [2000, 4000, 6000, 8000, 10000]
+    labels = ["2000-4000", "4000-6000", "6000-8000", "8000-10000"]
+    data["Daily Steps ranges"] = pd.cut(data["Daily Steps"], bins=bins, labels=labels, include_lowest=True)
+
+    # Calcular promedios y conteos
+    promedios = data.groupby("Daily Steps ranges", observed=False)["Quality of Sleep"].mean()
+    conteos = data["Daily Steps ranges"].value_counts().sort_index()
+
+    # Crear el reporte textual
+    print("=" * 70)
+    print("REPORTE: CALIDAD DEL SUEÑO SEGÚN PASOS DIARIOS")
+    print("=" * 70)
+    print()
+    print(f"Total de registros analizados: {len(data)}")
+    print(f"Rangos de pasos considerados: {', '.join(labels)}")
+    print()
+    print("PROMEDIOS DE CALIDAD DEL SUEÑO POR RANGO DE PASOS:")
+    print("-" * 70)
+    for rango in labels:
+        if rango in promedios.index:
+            promedio = promedios[rango]
+            cantidad = conteos[rango]
+            print(f"  • {rango:10s}: {promedio:.2f}/10 (n={cantidad})")
+
+    print()
+    # Observaciones automáticas
+    mejor = promedios.idxmax()
+    peor = promedios.idxmin()
+    diferencia = promedios[mejor] - promedios[peor]
+
+    print("HALLAZGOS:")
+    print("-" * 70)
+    print(f"El grupo con mejor calidad de sueño es el de {mejor} pasos diarios.")
+    print(f"El grupo con menor calidad de sueño es el de {peor} pasos diarios.")
+    print(f"La diferencia entre ambos grupos es de {diferencia:.2f} puntos en promedio.")
+    print()
+    print("CONCLUSIÓN:")
+    print(f"Las personas que caminan entre {mejor} pasos al día tienden a dormir mejor,")
+    print("lo que sugiere una relación positiva entre la actividad física y la calidad del sueño.")
+    print("=" * 70)

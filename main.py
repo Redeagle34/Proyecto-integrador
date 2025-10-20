@@ -1,3 +1,5 @@
-from src.menu import menu
+from src.interface import GraphSelectorApp
 
-menu()
+if __name__ == "__main__":
+    app = GraphSelectorApp()
+    app.mainloop()

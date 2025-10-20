@@ -3,9 +3,9 @@ from tkinter import ttk, messagebox, simpledialog, scrolledtext
 import pandas as pd
 import sys
 from io import StringIO
-from charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group
-from reports import sleep_vs_age_report, sleep_vs_physical_activity_report
-from aws import getCSVfromAWS
+from src.charts import heatmap_IMC_vs_sueño, scatter_IMC_vs_sueño, steps_sleep_chart, sleep_quality_vs_age, bar_avg_by_group
+from src.reports import sleep_vs_age_report, sleep_vs_physical_activity_report
+from src.aws import getCSVfromAWS
 
 class GraphSelectorApp(tk.Tk):
     def __init__(self):

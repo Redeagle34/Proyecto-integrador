@@ -1,5 +1,5 @@
 # Aqui se pondran las funciones de graficacion
-from statics import average_sleep_by_age
+from src.statics import average_sleep_by_age
 
 import matplotlib.pyplot as plt
 import seaborn as sns

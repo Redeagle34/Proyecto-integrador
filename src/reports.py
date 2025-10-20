@@ -226,3 +226,54 @@ def BMI_vs_sleep_quality(data):
     print(f"{diferencia:.2f} puntos superior a las personas con IMC '{menor_calidad}'.")
     print()
     print("=" * 70)
+
+
+def steps_vs_sleep_quality(data):
+    """
+    Reporte sobre la relación entre la cantidad de pasos diarios y la calidad del sueño.
+    
+    Parameters:
+        data (DataFrame): Dataset con columnas 'Daily Steps' y 'Quality of Sleep'
+    """
+
+    # Crear grupos de pasos diarios
+    bins = [2000, 4000, 6000, 8000, 10000]
+    labels = ["2000-4000", "4000-6000", "6000-8000", "8000-10000"]
+    data["Daily Steps ranges"] = pd.cut(data["Daily Steps"], bins=bins, labels=labels, include_lowest=True)
+
+    # Calcular promedios y conteos
+    promedios = data.groupby("Daily Steps ranges", observed=False)["Quality of Sleep"].mean()
+    conteos = data["Daily Steps ranges"].value_counts().sort_index()
+
+    # Crear el reporte textual
+    print("=" * 70)
+    print("REPORTE: CALIDAD DEL SUEÑO SEGÚN PASOS DIARIOS")
+    print("=" * 70)
+    print()
+    print(f"Total de registros analizados: {len(data)}")
+    print(f"Rangos de pasos considerados: {', '.join(labels)}")
+    print()
+    print("PROMEDIOS DE CALIDAD DEL SUEÑO POR RANGO DE PASOS:")
+    print("-" * 70)
+    for rango in labels:
+        if rango in promedios.index:
+            promedio = promedios[rango]
+            cantidad = conteos[rango]
+            print(f"  • {rango:10s}: {promedio:.2f}/10 (n={cantidad})")
+
+    print()
+    # Observaciones automáticas
+    mejor = promedios.idxmax()
+    peor = promedios.idxmin()
+    diferencia = promedios[mejor] - promedios[peor]
+
+    print("HALLAZGOS:")
+    print("-" * 70)
+    print(f"El grupo con mejor calidad de sueño es el de {mejor} pasos diarios.")
+    print(f"El grupo con menor calidad de sueño es el de {peor} pasos diarios.")
+    print(f"La diferencia entre ambos grupos es de {diferencia:.2f} puntos en promedio.")
+    print()
+    print("CONCLUSIÓN:")
+    print(f"Las personas que caminan entre {mejor} pasos al día tienden a dormir mejor,")
+    print("lo que sugiere una relación positiva entre la actividad física y la calidad del sueño.")
+    print("=" * 70)

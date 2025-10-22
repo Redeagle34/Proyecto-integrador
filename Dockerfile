@@ -1,11 +1,11 @@
-FROM python
+FROM python:3.13.1
 
 WORKDIR /proyecto
 
-COPY src/requirements.txt ./
+COPY requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /proyecto
 
-CMD ["python", "src/main.py"]
+CMD ["python", "main.py"]

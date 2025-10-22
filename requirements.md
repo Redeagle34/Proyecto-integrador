@@ -1,7 +1,1 @@
-requests
-pandas
-numpy
-boto3
-matplotlib
-seaborn
-tkinter
+boto3 pandas python-dotenv requests numpy matplotlib seaborn pandasql

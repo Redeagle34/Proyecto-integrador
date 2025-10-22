@@ -91,19 +91,17 @@ Referencias:
 ORACLE (2020) ¿Qué es la ciencia de datos? Consultado en:
 https://www.oracle.com/mx/what-is-data-science/Links to an external site.
 
-# 🧠 Cómo ejecutar el programa
+# Cómo ejecutar el programa
 
-## ⚠️ Aviso
+## Aviso
 
 Los siguientes pasos fueron probados en el IDE Visual Studio Code, ampliamente
 reconocido a nivel mundial por su compatibilidad y facilidad de uso.
 
-## 🧩 Requisitos
+## Ejecutar el programa directamente
 
-Tener instalado Python 3.13 o una versión superior.
-
-Instalar todas las dependencias necesarias ejecutando el siguiente comando en la
-terminal:
+Tener instalado Python 3.13 o una versión superior. Instalar todas las
+dependencias necesarias ejecutando el siguiente comando en la terminal:
 
 pip install -r requirements.txt
 
@@ -116,7 +114,7 @@ python main.py
 
 Esto debería inicializar el programa correctamente.
 
-## 🐳 Uso con Docker (opcional)
+## Uso con Docker (opcional)
 
 Esta sección está dirigida a usuarios con experiencia en el sistema de
 contenedores Docker.
